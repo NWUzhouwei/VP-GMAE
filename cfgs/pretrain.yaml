@@ -1,0 +1,48 @@
+optimizer: { type: AdamW, kwargs: { lr: 0.00001, weight_decay: 0.05 } } # lr: 0.0001
+
+scheduler: { type: CosLR, kwargs: { epochs: 300, initial_epochs: 10 } }
+
+dataset:
+  {
+    train:
+      {
+        _base_: cfgs/dataset_configs/ShapeNet-55.yaml,
+        others: { subset: "train", npoints: 1024 },
+      },
+    val:
+      {
+        _base_: cfgs/dataset_configs/ShapeNet-55.yaml,
+        others: { subset: "test", npoints: 1024 },
+      },
+    test:
+      {
+        _base_: cfgs/dataset_configs/ShapeNet-55.yaml,
+        others: { subset: "test", npoints: 1024 },
+      },
+  }
+
+model:
+  {
+    NAME: VSSLPretrain,
+    dims: 240,
+    loss: l1,
+    input_embedding: pointnet, # dgcnn or pointnet
+    dgcnn_k: 32, # only for dgcnn
+    middle_mlp: F, # F or T
+    voxelize_type: avg, # [avg, max, m2, mr]
+    transformer_config:
+      {
+        depth: 12,
+        resolution: [2, 3, 5, 7, 11],
+        mask_ratio: 0.5,
+        drop_path_rate: 0.1,
+        num_heads: 6,
+        decoder_depth: 2,
+        decoder_num_heads: 6,
+      },
+  }
+
+npoints: 1024
+total_bs: 14
+step_per_update: 1
+max_epoch: 300
